@@ -1,0 +1,13 @@
+class Program2
+{
+    static void Main(string[] args)
+    {
+        byte[] fileBytes = File.ReadAllBytes("/Users/bidemielelu/Downloads/test.txt");
+        Console.WriteLine(fileBytes.Length);
+
+        string[] lines = File.ReadAllLines("/Users/bidemielelu/Downloads/test.txt");
+        Console.WriteLine(lines.Length);
+
+        
+    }
+}
