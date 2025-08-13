@@ -1,0 +1,41 @@
+using System;
+using System.IO;
+
+namespace MyNamespace
+{
+    class Program
+    {
+        static void Wc()
+        {
+            string readText = File.ReadAllText("/Users/bidemielelu/Downloads/test.txt"); // Read filee
+            int words = 0; 
+            int currentchar=0;
+            foreach (char x in readText)
+            {
+                if (char.IsLetter(x) ||  char.IsDigit(x)) 
+                {
+                    currentchar = currentchar + 1;
+                    //Console.WriteLine(x);
+                }
+                
+                else
+                {
+                    currentchar = currentchar + 1;
+                    //continue;
+                   // words++;
+                    //continue;
+                    
+                    
+                }
+                
+                
+            }
+            Console.WriteLine(currentchar);
+            }
+        
+        static void Main(string[] args)
+        {
+            Wc();
+        }
+    }
+}
