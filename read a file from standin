@@ -1,0 +1,36 @@
+using System;
+using System.IO;
+
+namespace wc
+{
+    public class Program4
+    {
+        static void CountLines(string filename)
+        {
+            string[] lines = File.ReadAllLines(filename);
+            string linelength = Convert.ToString(lines.Length);
+            Console.WriteLine(linelength);
+        }
+
+        static void Count(string text)
+        {
+            string[] lines = text.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None);
+            string linelength = Convert.ToString(lines.Length);
+            Console.WriteLine(linelength);
+        }
+
+        static void Main(string[] args)
+        {
+            if (args.Length > 0)
+            {
+                string filename = args[0];
+                CountLines(filename);
+            }
+            else
+            {
+                string input = Console.In.ReadToEnd();
+                Count(input);
+            }
+        }
+    }
+}
