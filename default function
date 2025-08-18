@@ -1,0 +1,56 @@
+using System.Diagnostics.Metrics;
+using System.IO;
+using System.Text.RegularExpressions;
+
+
+
+namespace wc;
+
+public class Program4
+{
+    public static string filename="/Users/bidemielelu/Downloads/test.txt";
+
+    static void Default()
+    {
+        
+        //count lines 
+        string[] lines = File.ReadAllLines(filename);
+        //Console.WriteLine(lines.Length);
+        string linelength = Convert.ToString(lines.Length);
+      
+        
+       
+        //count words 
+        string readText=File.ReadAllText(filename);
+        readText = Regex.Replace(readText, @"\s+", " ");
+        
+        
+        int words = 0; 
+        //for (int i = 0; i < readText.Length; i++)
+        foreach (string x in readText.Split(' ', StringSplitOptions.RemoveEmptyEntries))
+        {
+            //if (readText[i] == ' '|| readText[i] == ','|| readText[i] == '\n'|| readText[i] == ';'|| readText[i] == '\t'|| readText[i] == ':')
+            //{
+              
+            words++;
+                
+            // }
+            
+        }
+        //Console.WriteLine(words);
+        string wordlength = Convert.ToString(words);
+
+        //count bytes 
+        byte[] fileBytes = File.ReadAllBytes(filename);
+        //Console.WriteLine(fileBytes.Length);
+        string fileLength = Convert.ToString(fileBytes.Length);
+        
+        Console.WriteLine($"{linelength}  {wordlength}  {fileLength} test.txt" );
+    }
+
+    static void Main(string[] args)
+    {
+        Default();
+            
+        }
+    }   
