@@ -1,0 +1,65 @@
+using System;
+using System.IO;
+using System.Text.RegularExpressions;
+
+namespace MyNamespace
+{
+    class Wc
+    {
+        static void Main(string[] args)
+        {
+            if (args.Length < 1 || args.Length > 2)
+            {
+                Console.WriteLine("Usage: ccwc -c|-l|-w|-m [filename]");
+                return;
+            }
+
+            string option = args[0];
+            string text;
+
+            try
+            {
+                if (args.Length == 2)
+                {
+                   
+                    string filename = args[1];
+                    text = File.ReadAllText(filename);
+                }
+                else
+                {
+                    
+                    text = Console.In.ReadToEnd();
+                }
+
+                if (option == "-c") 
+                {
+                    int byteCount = System.Text.Encoding.UTF8.GetByteCount(text);
+                    Console.WriteLine(byteCount);
+                }
+                else if (option == "-l")
+                {
+                    int lineCount = text.Split('\n').Length - 1;//text.Split(new[] { "\r\n", "\n" }, StringSplitOptions.None)
+                    if (text.EndsWith("\n")) lineCount++;
+                    Console.WriteLine(lineCount);
+                }
+                else if (option == "-w") 
+                {
+                    int wordCount = Regex.Split(text.Trim(), @"\s+").Length;
+                    Console.WriteLine(wordCount);
+                }
+                else if (option == "-m") 
+                {
+                    Console.WriteLine(text.Length);
+                }
+                else
+                {
+                    Console.WriteLine("Error: unsupported option");
+                }
+            }
+            catch (FileNotFoundException)
+            {
+                Console.WriteLine($"Error: File not found.");
+            }
+        }
+    }
+}
