@@ -1,0 +1,68 @@
+using System;
+using System.IO;
+using System.Text.RegularExpressions;
+
+namespace wc;
+
+public class GrepFunction
+{
+    static int Main(string[] args)
+    {
+        string pattern = args.Length > 0 ? args[0] : "";
+
+        string filePath = "/Users/bidemielelu/Downloads/challenge-grep/rockbands.txt";
+
+        bool recursive = args.Contains("-r");
+        bool invert = args.Contains("-v");
+
+        string directoryPath = "/Users/bidemielelu/Downloads/challenge-grep";
+
+        if (recursive)
+        {
+            foreach (string file in Directory.GetFiles(directoryPath, "*.txt", SearchOption.AllDirectories))
+            {
+                foreach (string line in File.ReadLines(file))
+                {
+                    if (string.IsNullOrEmpty(pattern))
+                    {
+                        Console.WriteLine($"{file}:{line}");
+                    }
+                    else
+                    {
+                        bool match = Regex.IsMatch(line, pattern);
+                        if ((match && !invert) || (!match && invert))
+                        {
+                            Console.WriteLine($"{file}:{line}");
+                        }
+                    }
+                }
+            }
+        }
+        else
+        {
+            if (!File.Exists(filePath))
+            {
+                Console.WriteLine($"File not found: {filePath}");
+                return 1;
+            }
+
+            foreach (string line in File.ReadLines(filePath))
+            {
+                if (string.IsNullOrEmpty(pattern))
+                {
+                    Console.WriteLine(line);
+                }
+                else
+                {
+                    bool match = Regex.IsMatch(line, pattern);
+                    if ((match && !invert) || (!match && invert))
+                    {
+                        Console.WriteLine(line);
+                    }
+                }
+            }
+        }
+
+        return 0;
+    }
+}
