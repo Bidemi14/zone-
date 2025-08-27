@@ -1,0 +1,73 @@
+using System;
+
+using System.Reflection.Metadata.Ecma335;
+
+namespace wc;
+
+public class CatFunction
+{
+  static void Main(string[] args)
+  {
+    if (args.Length == 0)
+    {
+      Console.WriteLine("Usage: dotnet run -- <file1> [file2 ...] [-n | -b]");
+      return;
+    }
+
+    bool numberAll = args.Contains("-n");
+    bool numberNonBlank = args.Contains("-b");
+
+ 
+    var files = args.Where(a => a != "-n" && a != "-b").ToList();
+
+    int lineNumber = 1;
+
+    foreach (string file in files)
+    {
+      if (file == "-")
+      {
+        string? line;
+        while ((line = Console.ReadLine()) != null)
+        {
+          PrintLine(line, ref lineNumber, numberAll, numberNonBlank);
+        }
+      }
+      else if (!File.Exists(file))
+      {
+        Console.WriteLine("File not found: " + file);
+      }
+      else
+      {
+        foreach (string line in File.ReadLines(file))
+        {
+          PrintLine(line, ref lineNumber, numberAll, numberNonBlank);
+        }
+      }
+    }
+  }
+
+  static void PrintLine(string line, ref int lineNumber, bool numberAll, bool numberNonBlank)
+  {
+    if (numberAll)
+    {
+      Console.WriteLine($"{lineNumber,6}  {line}");
+      lineNumber++;
+    }
+    else if (numberNonBlank)
+    {
+      if (!string.IsNullOrWhiteSpace(line))
+      {
+        Console.WriteLine($"{lineNumber,6}  {line}");
+        lineNumber++;
+      }
+      else
+      {
+        Console.WriteLine(); 
+      }
+    }
+    else
+    {
+      Console.WriteLine(line);
+    }
+  }
+}
