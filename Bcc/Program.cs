@@ -2,7 +2,7 @@ using System.Text.RegularExpressions;
 
 if (args.Length != 2 )
 {
-    Console.WriteLine("Usage: ccwc -c|-l|-w|-m <filename>");
+    Console.WriteLine("Usage: bcc -c|-l|-w|-m <filename>");
     return;
 }
     
