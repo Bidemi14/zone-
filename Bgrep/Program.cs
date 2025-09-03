@@ -10,7 +10,7 @@ public class GrepFunction
     {
         if (args.Length == 0)
         {
-            Console.WriteLine("Usage: dotnet run -- <pattern> <file-or-dir> [-r] [-v]");
+            Console.WriteLine("Usage: dotnet run -- <pattern> <file-or-dir> [-r] [-v] [-i]");
             return 1;
         }
 
@@ -30,13 +30,13 @@ public class GrepFunction
         {
             foreach (string line in File.ReadLines(filepath))
             {
-                PrintMatch(line, pattern, filepath, invert,optionCase);
+                PrintMatch(line, pattern, filepath, invert, optionCase);
             }
         }
         else if (Directory.Exists(filepath))
         {
             var option = recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
-            foreach (string file in Directory.GetFiles(filepath, "*.txt", option))
+            foreach (string file in Directory.GetFiles(filepath, "*", option)) // ✅ search all files
             {
                 foreach (string line in File.ReadLines(file))
                 {
@@ -53,16 +53,17 @@ public class GrepFunction
         return 0;
     }
 
-    static void PrintMatch(string line, string pattern, string file, bool invert,bool optionCase)
+    static void PrintMatch(string line, string pattern, string file, bool invert, bool optionCase)
     {
-        var options=RegexOptions.Multiline;
+        var options = RegexOptions.Multiline;
         if (optionCase)
             options |= RegexOptions.IgnoreCase;
-        bool match = Regex.IsMatch(line, pattern, RegexOptions.Multiline);
+
+        bool match = Regex.IsMatch(line, pattern, options); 
+
         if ((match && !invert) || (!match && invert))
         {
             Console.WriteLine(line);
         }
     }
-
 }
