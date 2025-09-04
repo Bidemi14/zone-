@@ -1,0 +1,144 @@
+using System;
+using System.IO;
+using System.Text;
+using System.Collections.Generic;
+
+namespace wc
+{
+    public class HeadFunction
+    {
+        static void Main(string[] args)
+        {
+            int? maxLines = 10;   
+            int? maxBytes = null; 
+            List<string> files = new List<string>();
+
+            
+            for (int i = 0; i < args.Length; i++)
+            {
+                if (args[i].StartsWith("-n"))
+                {
+                    string? value = null;
+                    if (args[i].Length > 2)
+                        value = args[i].Substring(2);
+                    else if (i + 1 < args.Length)
+                    {
+                        value = args[i + 1];
+                        i++;
+                    }
+
+                    if (!int.TryParse(value, out int n) || n < 1)
+                    {
+                        Console.Error.WriteLine("Error: Invalid value for -n. Must be a positive integer.");
+                        return;
+                    }
+                    maxLines = n;
+                }
+                else if (args[i].StartsWith("-c"))
+                {
+                    string? value = null;
+                    if (args[i].Length > 2)
+                        value = args[i].Substring(2);
+                    else if (i + 1 < args.Length)
+                    {
+                        value = args[i + 1];
+                        i++;
+                    }
+
+                    if (!int.TryParse(value, out int c) || c < 1)
+                    {
+                        Console.Error.WriteLine("Error: Invalid value for -c. Must be a positive integer.");
+                        return;
+                    }
+                    maxBytes = c;
+                    maxLines = null; 
+                }
+                else
+                {
+                    files.Add(args[i]);
+                }
+            }
+
+            if (files.Count > 0)
+            {
+                foreach (var file in files)
+                {
+                    if (!File.Exists(file))
+                    {
+                        Console.Error.WriteLine($"Error: File '{file}' not found.");
+                        continue;
+                    }
+
+                  
+                    if (files.Count > 1)
+                    {
+                        Console.WriteLine($"==> {file} <==");
+                    }
+
+                    if (maxBytes != null) 
+                    {
+                        using (FileStream fs = new FileStream(file, FileMode.Open, FileAccess.Read))
+                        {
+                            byte[] buffer = new byte[maxBytes.Value];
+                            int bytesRead = fs.Read(buffer, 0, buffer.Length);
+                            string text = Encoding.UTF8.GetString(buffer, 0, bytesRead);
+                            Console.Write(text);
+                        }
+                    }
+                    else if (maxLines != null) 
+                    {
+                        int lineCount = 0;
+                        using (StreamReader reader = new StreamReader(file))
+                        {
+                            string? line;
+                            while ((line = reader.ReadLine()) != null && lineCount < maxLines.Value)
+                            {
+                                Console.WriteLine(line);
+                                lineCount++;
+                            }
+                        }
+                    }
+
+              
+                    if (files.Count > 1)
+                    {
+                        Console.WriteLine();
+                    }
+                }
+            }
+            else 
+            {
+            
+                if (maxBytes != null)
+                {
+                    int remaining = maxBytes.Value;
+                    while (remaining > 0)
+                    {
+                        int ch = Console.Read();
+                        if (ch == -1) break;
+                        Console.Write((char)ch);
+                        remaining--;
+                    }
+                }
+                else if (maxLines != null)
+                {
+                    int lineCount = 0;
+                    string? line;
+                    while (lineCount < maxLines.Value && (line = Console.ReadLine()) != null)
+                    {
+                        Console.WriteLine(line);
+                        lineCount++;
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+
+//dotnet run -- /Users/bidemielelu/Downloads/challenge-grep/test.txt       step1 
+//dotnet run -- -n3 /Users/bidemielelu/Downloads/challenge-grep/test.txt   step2
+// dotnet run -- -c31 /Users/bidemielelu/Downloads/challenge-grep/test.txt step3 
+// dotnet run -- -n10 /Users/bidemielelu/Downloads/challenge-grep/test2.txt /Users/bidemielelu/Downloads/challenge-grep/test.txt
+// 
