@@ -1,4 +1,4 @@
-namespace BUrlShortener.Models;
+namespace BUrlShortner.Models;
 
 public class UrlInput
 {
