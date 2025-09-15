@@ -1,6 +1,9 @@
-@BUrlShortner_HostAddress = http://localhost:5266
+### Create a new shortened URL
+POST http://localhost:5266/
+Content-Type: application/json
 
-GET {{BUrlShortner_HostAddress}}/weatherforecast/
-Accept: application/json
+{
+  "url": "https://www.example.com"
+}
 
-###
+
