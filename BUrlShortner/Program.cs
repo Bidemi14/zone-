@@ -1,59 +1,55 @@
-using System.Security.Cryptography;
-using System.Text;
 using BUrlShortner.Models;
+using BUrlShortner.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddSingleton<IUrlRepository, UrlRepository>();
 var app = builder.Build();
 
-// In-memory dictionary to store mappings: id → originalUrl
-var store = new Dictionary<string, string>();
-
-// POST /  -> create short URL
-app.MapPost("/", (UrlInput input, HttpRequest req) =>
+//POST 
+app.MapPost("api/shorten", (UrlInput input, HttpRequest req) =>
 {
+    //this is used to validate the input 
+    var urlRepository = app.Services.GetRequiredService<IUrlRepository>();
+    
     if (input == null || string.IsNullOrWhiteSpace(input.Url))
         return Results.BadRequest(new { error = "url is required" });
 
     if (!Uri.IsWellFormedUriString(input.Url, UriKind.Absolute))
         return Results.BadRequest(new { error = "url must be a valid absolute URL" });
 
-    // generate short id
-    var id = GenerateId(6);
-    store[id] = input.Url;
-
-    var shortUrl = $"{req.Scheme}://{req.Host}/{id}";
-
-    var record = new UrlRecord
+    var existing = urlRepository.CheckUrl(input.Url);
+    if (existing != null)
     {
-        Id = id,
-        OriginalUrl = input.Url,
-        ShortUrl = shortUrl
-    };
+        return Results.Ok(existing); // don't create a duplicate
+    }
 
-    return Results.Created($"/{id}", record);
+
+    var dummyShortUrl = $"{req.Scheme}://{req.Host}"; 
+    var record = urlRepository.Add(input.Url, dummyShortUrl);
+
+   
+    record.ShortUrl = $"{req.Scheme}://{req.Host}/{record.Id}"; // 5^36
+
+    return Results.Created($"/{record.Id}", record);
 });
 
-// GET /{id} -> redirect
-app.MapGet("/{id}", (string id) =>
+//GET redirects to the original link  
+app.MapGet("/{id:int}", (int id) =>
 {
-    if (store.TryGetValue(id, out var longUrl))
-        return Results.Redirect(longUrl);
+    var urlRepository = app.Services.GetRequiredService<IUrlRepository>();
+    
+    var record = urlRepository.GetById(id);
+    if (record is null)
+        return Results.NotFound("Url not found");
 
-    return Results.NotFound();
+    return Results.Redirect(record.OriginalUrl);
+});
+
+//GET lists all the urls 
+app.MapGet("api/urls", () =>
+{
+    var urlRepository = app.Services.GetRequiredService<IUrlRepository>();
+    return urlRepository.GetAll();
 });
 
 app.Run();
-
-// --- helper function to generate random IDs ---
-static string GenerateId(int length)
-{
-    const string alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    var bytes = new byte[length];
-    using var rng = RandomNumberGenerator.Create();
-    rng.GetBytes(bytes);
-
-    var sb = new StringBuilder(length);
-    foreach (var b in bytes)
-        sb.Append(alphabet[b % alphabet.Length]);
-    return sb.ToString();
-}
